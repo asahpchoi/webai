@@ -11,7 +11,7 @@ SAMBANOVA_API_ENDPOINT = "https://api.sambanova.ai/v1/chat/completions"  # Repla
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", token_usage=None, response_time=None)
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -81,7 +81,7 @@ def chat():
                 "completion_tokens": completion_tokens,
                 "total_tokens": total_tokens
             }
-        })
+        }), 200, {'Content-Type': 'application/json'}
     except requests.RequestException as e:
         return jsonify({"error": f"Failed to get response from {model.capitalize()}: {str(e)}"}), 500
 
