@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # API endpoints
 OPENAI_API_ENDPOINT = "https://api.openai.com/v1/chat/completions"
-SAMBANOVA_API_ENDPOINT = "https://api.sambanova.ai/chat/completions"  # Replace with actual endpoint
+SAMBANOVA_API_ENDPOINT = "https://api.sambanova.ai/v1/chat/completions"  # Replace with actual endpoint
 
 @app.route("/")
 def home():
@@ -21,7 +21,7 @@ def chat():
 
     # Prepare the request payload
     payload = {
-        "model": "gpt-4o-mini" if model == "openai" else "sambanova-model",  # Replace with actual SambaNova model name
+        "model": "gpt-4o-mini" if model == "openai" else "Meta-Llama-3.1-405B-Instruct",  # Replace with actual SambaNova model name
         "messages": [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": user_message}
