@@ -13,8 +13,10 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_message = request.json["message"]
-    
+    user_message = request.json.get("message")
+    if not user_message:
+        return jsonify({"error": "No message provided"}), 400
+
     # Prepare the request payload
     payload = {
         "model": "gpt-3.5-turbo",
@@ -25,19 +27,24 @@ def chat():
     }
     
     # Set up the headers
+    api_key = os.environ.get('OPENAI_API_KEY')
+    if not api_key:
+        return jsonify({"error": "OpenAI API key not found"}), 500
+
     headers = {
-        "Authorization": f"Bearer {os.environ.get('OPENAI_API_KEY')}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     
-    # Make the API request
-    response = requests.post(OPENAI_API_ENDPOINT, json=payload, headers=headers)
-    
-    if response.status_code == 200:
+    try:
+        # Make the API request
+        response = requests.post(OPENAI_API_ENDPOINT, json=payload, headers=headers, timeout=30)
+        response.raise_for_status()
+        
         bot_response = response.json()["choices"][0]["message"]["content"]
         return jsonify({"response": bot_response})
-    else:
-        return jsonify({"error": "Failed to get response from OpenAI"}), 500
+    except requests.RequestException as e:
+        return jsonify({"error": f"Failed to get response from OpenAI: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
