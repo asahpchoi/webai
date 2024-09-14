@@ -1,7 +1,10 @@
 import os
 import requests
 import time
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
+from gtts import gTTS
+import os
+import tempfile
 
 app = Flask(__name__)
 
@@ -87,3 +90,21 @@ def chat():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+@app.route("/text-to-speech", methods=["POST"])
+def text_to_speech():
+    text = request.json.get("text")
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+
+    try:
+        tts = gTTS(text=text, lang='en')
+        
+        # Create a temporary file to store the audio
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
+            tts.save(temp_file.name)
+            temp_file_path = temp_file.name
+
+        return send_file(temp_file_path, mimetype="audio/mpeg", as_attachment=True, download_name="speech.mp3")
+    except Exception as e:
+        return jsonify({"error": f"Failed to convert text to speech: {str(e)}"}), 500

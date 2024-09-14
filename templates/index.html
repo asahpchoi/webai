@@ -27,6 +27,10 @@
     </select>
     <input type="text" id="user-input" placeholder="Type your message...">
     <button id="send-button">Send</button>
+    <div>
+        <input type="checkbox" id="text-to-speech" name="text-to-speech">
+        <label for="text-to-speech">Enable Text-to-Speech</label>
+    </div>
 
     <script>
         $(document).ready(function() {
@@ -37,6 +41,15 @@
                 }
                 $("#chat-container").append(messageHtml);
                 $("#chat-container").scrollTop($("#chat-container")[0].scrollHeight);
+
+                if (sender === "Bot" && $("#text-to-speech").is(":checked")) {
+                    speakText(message);
+                }
+            }
+
+            function speakText(text) {
+                var utterance = new SpeechSynthesisUtterance(text);
+                window.speechSynthesis.speak(utterance);
             }
 
             $("#send-button").click(function() {
