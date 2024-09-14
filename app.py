@@ -1,5 +1,6 @@
 import os
 import requests
+import time
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
@@ -49,12 +50,38 @@ def chat():
         api_endpoint = SAMBANOVA_API_ENDPOINT
     
     try:
+        # Record start time
+        start_time = time.time()
+
         # Make the API request
         response = requests.post(api_endpoint, json=payload, headers=headers, timeout=30)
         response.raise_for_status()
         
-        bot_response = response.json()["choices"][0]["message"]["content"]
-        return jsonify({"response": bot_response})
+        # Record end time
+        end_time = time.time()
+        
+        # Calculate response time
+        response_time = end_time - start_time
+        
+        # Extract response data
+        response_data = response.json()
+        bot_response = response_data["choices"][0]["message"]["content"]
+        
+        # Extract token usage
+        token_usage = response_data.get("usage", {})
+        prompt_tokens = token_usage.get("prompt_tokens", 0)
+        completion_tokens = token_usage.get("completion_tokens", 0)
+        total_tokens = token_usage.get("total_tokens", 0)
+        
+        return jsonify({
+            "response": bot_response,
+            "response_time": round(response_time, 2),
+            "token_usage": {
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": total_tokens
+            }
+        })
     except requests.RequestException as e:
         return jsonify({"error": f"Failed to get response from {model.capitalize()}: {str(e)}"}), 500
 
