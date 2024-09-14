@@ -13,8 +13,12 @@
     </style>
 </head>
 <body>
-    <h1>OpenAI Chatbot</h1>
+    <h1>AI Chatbot</h1>
     <div id="chat-container"></div>
+    <select id="model-select">
+        <option value="openai">OpenAI</option>
+        <option value="sambanova">SambaNova</option>
+    </select>
     <input type="text" id="user-input" placeholder="Type your message...">
     <button id="send-button">Send</button>
 
@@ -35,9 +39,15 @@
                         url: "/chat",
                         type: "POST",
                         contentType: "application/json",
-                        data: JSON.stringify({message: userMessage}),
+                        data: JSON.stringify({
+                            message: userMessage,
+                            model: $("#model-select").val()
+                        }),
                         success: function(response) {
                             addMessage("Bot", response.response);
+                        },
+                        error: function(xhr, status, error) {
+                            addMessage("Error", "Failed to get response: " + error);
                         }
                     });
                 }
