@@ -19,7 +19,7 @@ def chat():
 
     # Prepare the request payload
     payload = {
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4o-mini",
         "messages": [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": user_message}
